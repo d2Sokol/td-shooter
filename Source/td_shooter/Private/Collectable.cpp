@@ -35,3 +35,8 @@ void ACollectable::Tick(float DeltaTime)
 
 }
 
+void ACollectable::OnInteract(UInteractComponent* InteractedWith)
+{
+	Destroy();
+}
+

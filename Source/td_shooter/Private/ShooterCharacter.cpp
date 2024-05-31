@@ -8,6 +8,10 @@
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 
+#include "Components/BoxComponent.h"
+#include "Components/InteractComponent.h"
+#include "Components/InventoryComponent.h"
+
 // Sets default values
 AShooterCharacter::AShooterCharacter()
 {
@@ -16,7 +20,11 @@ AShooterCharacter::AShooterCharacter()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	InteractComponent = CreateDefaultSubobject<UInteractComponent>(TEXT("InteractComponent"));
+	InteractBox = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractBox"));
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 
+	InteractBox->SetupAttachment(RootComponent);
 	SpringArm->SetupAttachment(RootComponent);
 	Camera->SetupAttachment(SpringArm);
 
@@ -26,6 +34,8 @@ AShooterCharacter::AShooterCharacter()
 void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+
 	
 	APlayerController* PC = Cast<APlayerController>(Controller);
 
@@ -74,6 +84,7 @@ void AShooterCharacter::HandleCharacterRotation()
 	Result.X = -(yMouse - CharInScreen.Y);
 	Result.Y = xMouse - CharInScreen.X;
 
+
 	// Get angle rotation and rotation Character
 	float angle = FMath::RadiansToDegrees(FMath::Acos(Result.X / Result.Size()));
 
@@ -109,5 +120,15 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		}
 		//PlayerEnhancedInputComponent->BindAction(inputMove, ETriggerEvent::Triggered, this, &APlayer0::InputMove);
 	}
+}
+
+UBoxComponent* AShooterCharacter::GetInteractBox()
+{
+	return InteractBox;
+}
+
+UInventoryComponent* AShooterCharacter::GetInventoryComponent()
+{
+	return InventoryComponent;
 }
 

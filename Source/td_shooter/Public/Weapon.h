@@ -5,23 +5,25 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "InteractInterface.h"
-#include "Collectable.generated.h"
+#include "Weapon.generated.h"
 
-class UStaticMeshComponent;
 class UBoxComponent;
-class UInteractComponent;
 
 UCLASS()
-class TD_SHOOTER_API ACollectable : public AActor, public IInteractInterface
+class TD_SHOOTER_API AWeapon : public AActor, public IInteractInterface
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ACollectable();
+	AWeapon();
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	void OnInventoryUse();
+
+	const bool bIsWeaponEquipped() const;
 
 	virtual void OnInteract(UInteractComponent* InteractedWith) override;
 
@@ -29,11 +31,21 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadOnly)
+	bool bEquipped;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 MaxAmmo;
+
+	UPROPERTY(EditAnywhere)
+	int32 CurrentAmmo;
 private:	
 
 	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* Mesh;
+	UStaticMeshComponent* WeaponMesh;
 
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* InteractBox;
+	
+	void Shoot();
 };

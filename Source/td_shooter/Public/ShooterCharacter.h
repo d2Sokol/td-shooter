@@ -9,6 +9,9 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class UInteractComponent;
+class UBoxComponent;
+class UInventoryComponent;
 
 UCLASS()
 class TD_SHOOTER_API AShooterCharacter : public ACharacter
@@ -25,6 +28,10 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UBoxComponent* GetInteractBox();
+
+	UInventoryComponent* GetInventoryComponent();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -35,11 +42,21 @@ protected:
 
 private:
 
+
 	UPROPERTY(EditAnywhere)
 	UCameraComponent* Camera;
 
 	UPROPERTY(EditAnywhere)
 	USpringArmComponent* SpringArm;
+
+	UPROPERTY(EditAnywhere)
+	UInteractComponent* InteractComponent;
+
+	UPROPERTY(EditAnywhere)
+	UInventoryComponent* InventoryComponent;
+
+	UPROPERTY(EditAnywhere)
+	UBoxComponent* InteractBox;
 	
 	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
 	UInputMappingContext* inputMappingContext;
