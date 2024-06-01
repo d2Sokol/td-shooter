@@ -12,6 +12,9 @@
 #include "Components/InteractComponent.h"
 #include "Components/InventoryComponent.h"
 
+#include "InventoryWidget.h"
+#include "Blueprint/UserWidget.h"
+
 // Sets default values
 AShooterCharacter::AShooterCharacter()
 {
@@ -28,6 +31,9 @@ AShooterCharacter::AShooterCharacter()
 	SpringArm->SetupAttachment(RootComponent);
 	Camera->SetupAttachment(SpringArm);
 
+	InventoryWidgetClass = nullptr;
+	InventoryWidget = nullptr;
+
 }
 
 // Called when the game starts or when spawned
@@ -35,6 +41,14 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	if (IsLocallyControlled() && InventoryWidgetClass)
+	{
+		APlayerController* PlayerController = Cast<APlayerController>(Controller);
+		check(PlayerController);
+		InventoryWidget = CreateWidget<UInventoryWidget>(PlayerController, InventoryWidgetClass);
+		check(InventoryWidget);
+		InventoryWidget->AddToPlayerScreen();
+	}
 
 	
 	APlayerController* PC = Cast<APlayerController>(Controller);
@@ -130,5 +144,10 @@ UBoxComponent* AShooterCharacter::GetInteractBox()
 UInventoryComponent* AShooterCharacter::GetInventoryComponent()
 {
 	return InventoryComponent;
+}
+
+UInventoryWidget* AShooterCharacter::GetInventoryWidget()
+{
+	return InventoryWidget;
 }
 

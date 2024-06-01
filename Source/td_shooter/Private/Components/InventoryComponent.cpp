@@ -2,6 +2,9 @@
 
 
 #include "Components/InventoryComponent.h"
+#include "ShooterCharacter.h"
+#include "InventoryWidget.h"
+
 
 // Sets default values for this component's properties
 UInventoryComponent::UInventoryComponent()
@@ -19,6 +22,11 @@ void UInventoryComponent::AddWeapon(AWeapon* Weapon)
 	if (Inventory.Num() < MaxWeaponsCount)
 	{
 		Inventory.Add(Weapon);
+
+		if (AShooterCharacter* ShooterCharacter = Cast<AShooterCharacter>(GetOwner()))
+		{
+			ShooterCharacter->GetInventoryWidget()->AddWeaponToSlot(1, Weapon);
+		}
 	}
 }
 

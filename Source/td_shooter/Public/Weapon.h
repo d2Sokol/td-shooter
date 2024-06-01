@@ -8,6 +8,7 @@
 #include "Weapon.generated.h"
 
 class UBoxComponent;
+class UInventoryComponent;
 
 UCLASS()
 class TD_SHOOTER_API AWeapon : public AActor, public IInteractInterface
@@ -27,6 +28,8 @@ public:
 
 	virtual void OnInteract(UInteractComponent* InteractedWith) override;
 
+	class UTexture2D* GetInventoryIcon();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -39,7 +42,12 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	int32 CurrentAmmo;
+
+	UPROPERTY(EditAnywhere)
+	class UTexture2D* InventoryIcon;
 private:	
+
+	UInventoryComponent* InventoryComponent;
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* WeaponMesh;

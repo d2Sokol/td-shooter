@@ -12,6 +12,7 @@ class USpringArmComponent;
 class UInteractComponent;
 class UBoxComponent;
 class UInventoryComponent;
+class UInventoryWidget;
 
 UCLASS()
 class TD_SHOOTER_API AShooterCharacter : public ACharacter
@@ -31,6 +32,8 @@ public:
 	UBoxComponent* GetInteractBox();
 
 	UInventoryComponent* GetInventoryComponent();
+
+	UInventoryWidget* GetInventoryWidget();
 
 protected:
 	// Called when the game starts or when spawned
@@ -63,5 +66,14 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
 	UInputAction* inputMove;
+
+
+	//HUD
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UInventoryWidget> InventoryWidgetClass;
+
+	UPROPERTY(EditAnywhere)
+	class UInventoryWidget* InventoryWidget;
 
 };

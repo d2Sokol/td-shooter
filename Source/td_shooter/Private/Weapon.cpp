@@ -20,6 +20,8 @@ AWeapon::AWeapon()
 
 	WeaponMesh->SetupAttachment(RootComponent);
 
+	InventoryComponent = nullptr;
+
 	bEquipped = false;
 }
 
@@ -27,6 +29,14 @@ AWeapon::AWeapon()
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+
+	AShooterCharacter* Character = Cast<AShooterCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+
+	if (Character)
+	{
+		InventoryComponent = Character->GetInventoryComponent();
+	}
+	
 	
 }
 
@@ -77,11 +87,18 @@ const bool AWeapon::bIsWeaponEquipped() const
 
 void AWeapon::OnInteract(UInteractComponent* InteractedWith)
 {
-	AShooterCharacter* Character = Cast<AShooterCharacter>(InteractedWith->GetOwner());
 
-	Character->GetInventoryComponent()->AddWeapon(this);
+	if (InventoryComponent)
+	{
+		InventoryComponent->AddWeapon(this);
 
-	this->SetActorHiddenInGame(true);
-	this->SetActorEnableCollision(false);
+		this->SetActorHiddenInGame(true);
+		this->SetActorEnableCollision(false);
+	}
+}
+
+class UTexture2D* AWeapon::GetInventoryIcon()
+{
+	return InventoryIcon;
 }
 
