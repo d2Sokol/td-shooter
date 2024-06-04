@@ -9,6 +9,7 @@
 
 class UBoxComponent;
 class UInventoryComponent;
+class AShooterCharacter;
 
 UCLASS()
 class TD_SHOOTER_API AWeapon : public AActor, public IInteractInterface
@@ -54,6 +55,10 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* InteractBox;
+
+	AShooterCharacter* Character;
+
+	bool bPickedUp;
 	
 	void Shoot();
 };

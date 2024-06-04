@@ -41,6 +41,8 @@ protected:
 
 	void InputMove(const FInputActionValue& Value);
 
+	void InputInventory(const FInputActionValue& Value);
+
 	void HandleCharacterRotation();
 
 private:
@@ -66,6 +68,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
 	UInputAction* inputMove;
+
+	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
+	UInputAction* inputInventory;
 
 
 	//HUD

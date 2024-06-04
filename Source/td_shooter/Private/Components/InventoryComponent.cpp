@@ -40,18 +40,22 @@ void UInventoryComponent::RemoveWeapon(AWeapon* Weapon)
 
 void UInventoryComponent::UseWeaponAtSlot(int32 slot)
 {
-	AWeapon* Weapon = Inventory[slot];
+	
+	if (!Inventory.IsValidIndex(slot))
+	{
+		return;
+	}
 
-	if (Weapon)
+	if (AWeapon* Weapon = Cast<AWeapon>(Inventory[slot]))
 	{
 
-		if (GetEquippedWeapons().Num() > 0) // Check if is there any equipped weapons
-		{
-			for (auto& EquippedWeapons : GetEquippedWeapons())
-			{
-				EquippedWeapons->OnInventoryUse(); // Hides all equipped weapons in case if EquippedWeapons > 1
-			}
-		}
+		//if (GetEquippedWeapons().Num() > 0) // Check if is there any equipped weapons
+		//{
+		//	for (auto& EquippedWeapons : GetEquippedWeapons())
+		//	{
+		//		EquippedWeapons->OnInventoryUse(); // Hides all equipped weapons in case if EquippedWeapons > 1
+		//	}
+		//}
 
 		Weapon->OnInventoryUse(); // Take new Weapon
 	}

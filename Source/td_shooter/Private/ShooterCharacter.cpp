@@ -79,6 +79,41 @@ void AShooterCharacter::InputMove(const FInputActionValue& Value)
 	}
 }
 
+void AShooterCharacter::InputInventory(const FInputActionValue& Value)
+{
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		int32 WEAPON_SLOT = 0;
+		if (PlayerController->IsInputKeyDown(EKeys::One))
+		{
+			WEAPON_SLOT = 0;
+		}
+		else if (PlayerController->IsInputKeyDown(EKeys::Two))
+		{
+			WEAPON_SLOT = 1;
+		}
+		else if (PlayerController->IsInputKeyDown(EKeys::Three))
+		{
+			WEAPON_SLOT = 2;
+		}
+		else if (PlayerController->IsInputKeyDown(EKeys::Four))
+		{
+			WEAPON_SLOT = 3;
+		}
+		else if (PlayerController->IsInputKeyDown(EKeys::Five))
+		{
+			WEAPON_SLOT = 4;
+		}
+		else if (PlayerController->IsInputKeyDown(EKeys::Six))
+		{
+			WEAPON_SLOT = 5;
+		}
+
+
+		InventoryComponent->UseWeaponAtSlot(WEAPON_SLOT);
+	}
+}
+
 void AShooterCharacter::HandleCharacterRotation()
 {
 	FVector MouseLocation, MouseDirection;
@@ -131,7 +166,10 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 		if (UEnhancedInputComponent* Input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 			Input->BindAction(inputMove, ETriggerEvent::Triggered, this, &AShooterCharacter::InputMove);
+			Input->BindAction(inputInventory, ETriggerEvent::Started, this, &AShooterCharacter::InputInventory);
 		}
+
+		
 		//PlayerEnhancedInputComponent->BindAction(inputMove, ETriggerEvent::Triggered, this, &APlayer0::InputMove);
 	}
 }

@@ -22,7 +22,13 @@ AWeapon::AWeapon()
 
 	InventoryComponent = nullptr;
 
+	bPickedUp = false;
+
 	bEquipped = false;
+
+	CurrentAmmo = 30;
+
+	
 }
 
 // Called when the game starts or when spawned
@@ -30,7 +36,7 @@ void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AShooterCharacter* Character = Cast<AShooterCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+	Character = Cast<AShooterCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
 
 	if (Character)
 	{
@@ -60,7 +66,8 @@ void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!bEquipped)
+
+	if (!bPickedUp)
 	{
 		AddActorWorldRotation(FRotator(0.0f, 1.0f, 0.0f));
 	}
@@ -71,12 +78,12 @@ void AWeapon::OnInventoryUse()
 	if (bEquipped)
 	{
 		bEquipped = false;
-		//Hide
+		this->SetActorHiddenInGame(true);
 	}
 	else
 	{
 		bEquipped = true;
-		//Attach To Player
+		this->SetActorHiddenInGame(false);
 	}
 }
 
@@ -87,13 +94,16 @@ const bool AWeapon::bIsWeaponEquipped() const
 
 void AWeapon::OnInteract(UInteractComponent* InteractedWith)
 {
-
 	if (InventoryComponent)
 	{
 		InventoryComponent->AddWeapon(this);
-
+		bPickedUp = true;
+		this->AttachToComponent(Character->GetMesh(), FAttachmentTransformRules::KeepWorldTransform);
+		this->SetActorRelativeLocation(FVector(0.0f, -30.0f, 15.0f));
+		this->SetActorRelativeRotation(FRotator(0.0f, -180.0f, 0.0f));
 		this->SetActorHiddenInGame(true);
 		this->SetActorEnableCollision(false);
+
 	}
 }
 
