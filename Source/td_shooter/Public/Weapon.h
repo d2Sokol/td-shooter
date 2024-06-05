@@ -31,6 +31,9 @@ public:
 
 	class UTexture2D* GetInventoryIcon();
 
+	void StartShooting();
+	void StopShooting();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -40,6 +43,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly)
 	int32 MaxAmmo;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsAmmoUnlimited;
 
 	UPROPERTY(EditAnywhere)
 	int32 CurrentAmmo;
@@ -58,7 +64,14 @@ private:
 
 	AShooterCharacter* Character;
 
+	UPROPERTY(EditAnywhere, Category = "Collision")
+	TEnumAsByte<ECollisionChannel> TraceChannelProperty = ECC_Pawn;
+
+	FTimerHandle ShootHandle;
+
+	float ShootDelay = 0.3f; // Will not work if it's 0
+
 	bool bPickedUp;
-	
+
 	void Shoot();
 };

@@ -26,7 +26,9 @@ AWeapon::AWeapon()
 
 	bEquipped = false;
 
-	CurrentAmmo = 30;
+	CurrentAmmo = 120;
+
+	bIsAmmoUnlimited = false;
 
 	
 }
@@ -46,6 +48,18 @@ void AWeapon::BeginPlay()
 	
 }
 
+void AWeapon::StartShooting()
+{
+	GetWorldTimerManager().SetTimer(ShootHandle, this, &AWeapon::Shoot, ShootDelay, true);
+}
+
+void AWeapon::StopShooting()
+{
+	GetWorldTimerManager().ClearTimer(ShootHandle);
+}
+
+
+
 void AWeapon::Shoot()
 {
 	if (!bEquipped)
@@ -53,11 +67,33 @@ void AWeapon::Shoot()
 		return;
 	}
 
+	
+
 	if (CurrentAmmo > 0)
 	{
-		CurrentAmmo--;
+		if (!bIsAmmoUnlimited)
+			CurrentAmmo--;
 
-		//trace line or something
+		FHitResult Hit;
+
+		FVector TraceStart = GetActorLocation();
+		FVector TraceEnd = GetActorLocation() + GetActorForwardVector() * 2000.0f;
+
+		FCollisionQueryParams QueryParams;
+		QueryParams.AddIgnoredActor(this);
+
+		GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+
+		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
+		UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
+
+		if (Hit.bBlockingHit && IsValid(Hit.GetActor()))
+		{
+			UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
+		}
+		else {
+			UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
+		}
 	}
 }
 
@@ -77,11 +113,13 @@ void AWeapon::OnInventoryUse()
 {
 	if (bEquipped)
 	{
+		Character->SetCurrentWeapon(nullptr);
 		bEquipped = false;
 		this->SetActorHiddenInGame(true);
 	}
 	else
 	{
+		Character->SetCurrentWeapon(this);
 		bEquipped = true;
 		this->SetActorHiddenInGame(false);
 	}

@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
+#include "Weapon.h"
 
 #include "Components/BoxComponent.h"
 #include "Components/InteractComponent.h"
@@ -33,6 +34,8 @@ AShooterCharacter::AShooterCharacter()
 
 	InventoryWidgetClass = nullptr;
 	InventoryWidget = nullptr;
+	CurrentWeapon = nullptr;
+
 
 }
 
@@ -145,6 +148,22 @@ void AShooterCharacter::HandleCharacterRotation()
 	GetMesh()->SetWorldRotation(rot);
 }
 
+void AShooterCharacter::StartShootingWeapon()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->StartShooting();
+	}
+}
+
+void AShooterCharacter::StopShootingWeapon()
+{
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->StopShooting();
+	}
+}
+
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
 {
@@ -167,6 +186,8 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 		if (UEnhancedInputComponent* Input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 			Input->BindAction(inputMove, ETriggerEvent::Triggered, this, &AShooterCharacter::InputMove);
 			Input->BindAction(inputInventory, ETriggerEvent::Started, this, &AShooterCharacter::InputInventory);
+			Input->BindAction(inputShoot, ETriggerEvent::Started, this, &AShooterCharacter::StartShootingWeapon);
+			Input->BindAction(inputShoot, ETriggerEvent::Completed, this, &AShooterCharacter::StopShootingWeapon);
 		}
 
 		
@@ -187,5 +208,10 @@ UInventoryComponent* AShooterCharacter::GetInventoryComponent()
 UInventoryWidget* AShooterCharacter::GetInventoryWidget()
 {
 	return InventoryWidget;
+}
+
+void AShooterCharacter::SetCurrentWeapon(AWeapon* Weapon)
+{
+	CurrentWeapon = Weapon;
 }
 

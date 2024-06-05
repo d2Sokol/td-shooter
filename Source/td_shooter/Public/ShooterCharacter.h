@@ -13,6 +13,7 @@ class UInteractComponent;
 class UBoxComponent;
 class UInventoryComponent;
 class UInventoryWidget;
+class AWeapon;
 
 UCLASS()
 class TD_SHOOTER_API AShooterCharacter : public ACharacter
@@ -35,6 +36,8 @@ public:
 
 	UInventoryWidget* GetInventoryWidget();
 
+	void SetCurrentWeapon(AWeapon* Weapon);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -44,6 +47,10 @@ protected:
 	void InputInventory(const FInputActionValue& Value);
 
 	void HandleCharacterRotation();
+
+	void StartShootingWeapon();
+
+	void StopShootingWeapon();
 
 private:
 
@@ -71,6 +78,11 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
 	UInputAction* inputInventory;
+
+	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
+	UInputAction* inputShoot;
+
+	AWeapon* CurrentWeapon;
 
 
 	//HUD
