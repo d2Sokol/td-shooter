@@ -6,6 +6,10 @@
 #include "ShooterCharacter.h"
 #include "Components/InventoryComponent.h"
 #include "Components/BoxComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+#include "InteractWidget.h"
+#include "Components/WidgetComponent.h"
 
 // Sets default values
 AWeapon::AWeapon()
@@ -15,20 +19,35 @@ AWeapon::AWeapon()
 
 	WeaponMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
 	InteractBox = CreateDefaultSubobject<UBoxComponent>(TEXT("InteractBox"));
+	MuzzleEffectLocation = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle Effect Location"));
+	InteractWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("InteractWidget"));
 
 	RootComponent = InteractBox;
 
 	WeaponMesh->SetupAttachment(RootComponent);
+	MuzzleEffectLocation->SetupAttachment(RootComponent);
 
 	InventoryComponent = nullptr;
 
 	bPickedUp = false;
 
-	bEquipped = false;
+	WeaponMetadata.bEquipped = false;
 
-	CurrentAmmo = 120;
+	WeaponMetadata.CurrentAmmo = 120;
 
-	bIsAmmoUnlimited = false;
+	WeaponMetadata.bIsAmmoUnlimited = false;
+
+	if (InteractWidget)
+	{
+		InteractWidget->SetupAttachment(RootComponent);
+		InteractWidget->SetWidgetSpace(EWidgetSpace::World);
+
+		static ConstructorHelpers::FClassFinder<UUserWidget> WidgetClass{ TEXT("/Game/BP_InteractWidget") };
+		if (WidgetClass.Succeeded())
+		{
+			InteractWidget->SetWidgetClass(WidgetClass.Class);
+		}
+	}
 
 	
 }
@@ -37,6 +56,15 @@ AWeapon::AWeapon()
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (UInteractWidget* IntWidget = Cast<UInteractWidget>(InteractWidget->GetUserWidgetObject()))
+	{
+
+
+		IntWidget->SetItemImage(WeaponMetadata.InventoryIcon);
+		IntWidget->SetItemName(FText::FromString(WeaponMetadata.ItemName));
+		IntWidget->HideInteractWidget();
+	}
 
 	Character = Cast<AShooterCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
 
@@ -62,17 +90,17 @@ void AWeapon::StopShooting()
 
 void AWeapon::Shoot()
 {
-	if (!bEquipped)
+	if (!WeaponMetadata.bEquipped)
 	{
 		return;
 	}
 
 	
 
-	if (CurrentAmmo > 0)
+	if (WeaponMetadata.CurrentAmmo > 0)
 	{
-		if (!bIsAmmoUnlimited)
-			CurrentAmmo--;
+		if (!WeaponMetadata.bIsAmmoUnlimited)
+			WeaponMetadata.CurrentAmmo--;
 
 		FHitResult Hit;
 
@@ -84,15 +112,23 @@ void AWeapon::Shoot()
 
 		GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
 
-		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
+		//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
 		UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
 
 		if (Hit.bBlockingHit && IsValid(Hit.GetActor()))
 		{
 			UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
+			if (HitEffect) {
+				//UNiagaraFunctionLibrary::SpawnSystemAttached(FireEffectMuzzle, MuzzleEffectLocation, NAME_None, FVector(0.f), FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, true);
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), HitEffect, Hit.ImpactPoint);
+			}
 		}
 		else {
 			UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
+		}
+
+		if (FireEffectMuzzle) {
+			UNiagaraFunctionLibrary::SpawnSystemAttached(FireEffectMuzzle, MuzzleEffectLocation, NAME_None, FVector(0.f), FRotator(0.f), EAttachLocation::Type::KeepRelativeOffset, true);
 		}
 	}
 }
@@ -111,23 +147,23 @@ void AWeapon::Tick(float DeltaTime)
 
 void AWeapon::OnInventoryUse()
 {
-	if (bEquipped)
+	if (WeaponMetadata.bEquipped)
 	{
 		Character->SetCurrentWeapon(nullptr);
-		bEquipped = false;
+		WeaponMetadata.bEquipped = false;
 		this->SetActorHiddenInGame(true);
 	}
 	else
 	{
 		Character->SetCurrentWeapon(this);
-		bEquipped = true;
+		WeaponMetadata.bEquipped = true;
 		this->SetActorHiddenInGame(false);
 	}
 }
 
 const bool AWeapon::bIsWeaponEquipped() const
 {
-	return bEquipped;
+	return WeaponMetadata.bEquipped;
 }
 
 void AWeapon::OnInteract(UInteractComponent* InteractedWith)
@@ -145,8 +181,32 @@ void AWeapon::OnInteract(UInteractComponent* InteractedWith)
 	}
 }
 
+void AWeapon::OnStartIntersecting()
+{
+	if (InteractWidget)
+	{
+		if (UInteractWidget* IntWidget = Cast<UInteractWidget>(InteractWidget->GetUserWidgetObject()))
+		{
+			IntWidget->ShowInteractWidget();
+		}
+		
+	}
+}
+
+void AWeapon::OnStopIntersecting()
+{
+	if (InteractWidget)
+	{
+		if (UInteractWidget* IntWidget = Cast<UInteractWidget>(InteractWidget->GetUserWidgetObject()))
+		{
+			IntWidget->HideInteractWidget();
+		}
+
+	}
+}
+
 class UTexture2D* AWeapon::GetInventoryIcon()
 {
-	return InventoryIcon;
+	return WeaponMetadata.InventoryIcon;
 }
 

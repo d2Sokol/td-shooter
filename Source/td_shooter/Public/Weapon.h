@@ -10,6 +10,40 @@
 class UBoxComponent;
 class UInventoryComponent;
 class AShooterCharacter;
+class UNiagaraSystem;
+class UInteractWidget;
+class UWidgetComponent;
+
+USTRUCT(BlueprintType)
+struct FWeaponMetadata
+{
+
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere)
+	FString ItemName = "Pistol";
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bEquipped;
+
+	UPROPERTY(BlueprintReadOnly)
+	int32 MaxAmmo;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsAmmoUnlimited;
+
+	UPROPERTY(EditAnywhere)
+	int32 CurrentAmmo;
+
+	UPROPERTY(EditAnywhere)
+	class UTexture2D* InventoryIcon;
+
+	UPROPERTY(EditAnywhere)
+	float DamageMin = 25.0f;
+
+	UPROPERTY(EditAnywhere)
+	float DamageMax = 33.0f;
+};
 
 UCLASS()
 class TD_SHOOTER_API AWeapon : public AActor, public IInteractInterface
@@ -29,6 +63,10 @@ public:
 
 	virtual void OnInteract(UInteractComponent* InteractedWith) override;
 
+	virtual void OnStartIntersecting() override;
+
+	virtual void OnStopIntersecting() override;
+
 	class UTexture2D* GetInventoryIcon();
 
 	void StartShooting();
@@ -38,20 +76,17 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadOnly)
-	bool bEquipped;
-
-	UPROPERTY(BlueprintReadOnly)
-	int32 MaxAmmo;
+	UPROPERTY(EditAnywhere)
+	FWeaponMetadata WeaponMetadata;
 
 	UPROPERTY(EditAnywhere)
-	bool bIsAmmoUnlimited;
+	USceneComponent* MuzzleEffectLocation;
 
 	UPROPERTY(EditAnywhere)
-	int32 CurrentAmmo;
+	UNiagaraSystem* FireEffectMuzzle;
 
 	UPROPERTY(EditAnywhere)
-	class UTexture2D* InventoryIcon;
+	UNiagaraSystem* HitEffect;
 private:	
 
 	UInventoryComponent* InventoryComponent;
@@ -72,6 +107,9 @@ private:
 	float ShootDelay = 0.3f; // Will not work if it's 0
 
 	bool bPickedUp;
+
+	UPROPERTY(EditAnywhere)
+	UWidgetComponent* InteractWidget;
 
 	void Shoot();
 };

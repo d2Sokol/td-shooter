@@ -26,6 +26,8 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+
+	TArray<AActor*> OldActors;
 	
 	AShooterCharacter* PlayerCharacter;
 

@@ -45,6 +45,16 @@ void UInteractComponent::sInteractUpdate()
 	if (PlayerCharacter->GetInteractBox())
 	{
 		PlayerCharacter->GetInteractBox()->GetOverlappingActors(OverlappingActors);
+		for (auto& Actor : OldActors)
+		{
+			if (IInteractInterface* InteractableActor = Cast<IInteractInterface>(Actor))
+			{
+				InteractableActor->OnStopIntersecting();
+			}
+			
+		}
+
+		OldActors.Empty();
 
 		if (OverlappingActors.IsEmpty()) {
 			return;
@@ -54,7 +64,9 @@ void UInteractComponent::sInteractUpdate()
 		{
 			if (IInteractInterface* InteractableActor = Cast<IInteractInterface>(Actor))
 			{
-				InteractableActor->OnInteract(this);
+				//UE_LOG(LogTemp, Warning, TEXT("Adding Actor: %s"), *Actor);
+				OldActors.Add(Actor);
+				InteractableActor->OnStartIntersecting();
 			}
 		}
 
